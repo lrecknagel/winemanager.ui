@@ -14,32 +14,32 @@ export default function WineDetailPopup({ wine, onClose }: WineDetailPopupProps)
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="glass-card rounded-xl w-full max-w-md max-h-[90vh] overflow-auto">
         <div className="p-4 flex items-center justify-between border-b border-white/10">
-          <h2 className="text-xl font-bold text-white">Wine Details</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-white">
+          <h2 className="text-xl font-bold text-theme-text">Wine Details</h2>
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-theme-text">
             <X className="h-5 w-5" />
           </Button>
         </div>
 
         <div className="p-4 space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">{wine.name}</h3>
-            <p className="text-white/70">{wine.winery}</p>
+            <h3 className="text-lg font-semibold text-theme-text">{wine.name}</h3>
+            <p className="text-theme-text/70">{wine.winery}</p>
           </div>
 
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-white/80">Description</h4>
-            <p className="text-white/70 text-sm">{wine.description}</p>
+            <h4 className="text-sm font-medium text-theme-text/80">Description</h4>
+            <p className="text-theme-text/70 text-sm">{wine.description}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="text-sm font-medium text-white/80">Grapes</h4>
-              <p className="text-white/70 text-sm">{wine.grapes}</p>
+              <h4 className="text-sm font-medium text-theme-text/80">Grapes</h4>
+              <p className="text-theme-text/70 text-sm">{wine.grapes}</p>
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-white/80">Pairs with</h4>
-              <p className="text-white/70 text-sm">{wine.foods}</p>
+              <h4 className="text-sm font-medium text-theme-text/80">Pairs with</h4>
+              <p className="text-theme-text/70 text-sm">{wine.foods}</p>
             </div>
           </div>
         </div>

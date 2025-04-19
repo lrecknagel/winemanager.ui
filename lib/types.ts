@@ -6,6 +6,7 @@ export type Wine = {
   winery: string
   grapes: string
   foods: string
+  type?: string
 }
 
 export type WineDetail = {
@@ -15,6 +16,7 @@ export type WineDetail = {
   winery: string
   grapes: string
   foods: string
+  type?: string
 }
 
 export type CoolerPosition = {

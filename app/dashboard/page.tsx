@@ -5,11 +5,13 @@ import { useAuth } from "@/components/auth-provider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import WineCooler from "@/components/wine-cooler"
 import SearchComponent from "@/components/search-component"
-import type { WineDetail } from "@/lib/types"
 import WineDetailPopup from "@/components/wine-detail-popup"
+import IsometricCooler from "@/components/isometric-cooler"
+import WineMenu from "@/components/wine-menu"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { config } from "@/lib/config"
+import type { WineDetail } from "@/lib/types"
 
 export default function Dashboard() {
   const { token, handleApiError } = useAuth()
@@ -90,11 +92,9 @@ export default function Dashboard() {
   // Show loading state until client-side rendering is complete
   if (!isClient) {
     return (
-      <main
-        className={`min-h-screen bg-gradient-to-br from-${config.theme.primaryFrom}/30 to-${config.theme.primaryTo}/30 bg-fixed p-4`}
-      >
+      <main className="min-h-screen theme-gradient p-4">
         <div className="glass-card p-8 rounded-xl flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-white" />
+          <Loader2 className="h-8 w-8 animate-spin text-theme-text" />
         </div>
       </main>
     )
@@ -103,30 +103,32 @@ export default function Dashboard() {
   // If we're on the client but not authenticated, show a message
   if (isClient && !token) {
     return (
-      <main
-        className={`min-h-screen bg-gradient-to-br from-${config.theme.primaryFrom}/30 to-${config.theme.primaryTo}/30 bg-fixed p-4`}
-      >
+      <main className="min-h-screen theme-gradient p-4">
         <div className="glass-card p-8 rounded-xl flex items-center justify-center">
-          <p className="text-white">Please log in to access the dashboard</p>
+          <p className="text-theme-text">Please log in to access the dashboard</p>
         </div>
       </main>
     )
   }
 
   return (
-    <main
-      className={`min-h-screen bg-gradient-to-br from-${config.theme.primaryFrom}/30 to-${config.theme.primaryTo}/30 bg-fixed p-4`}
-    >
+    <main className="min-h-screen theme-gradient p-4">
       <div className="glass-card rounded-xl p-4 mb-4">
-        <h1 className="text-2xl font-bold text-white">Wine Manager</h1>
+        <h1 className="text-2xl font-bold text-theme-text">Wine Manager</h1>
       </div>
 
       <Tabs defaultValue="cooler" className="w-full">
         <TabsList className="glass-card w-full mb-4">
-          <TabsTrigger value="cooler" className="w-1/2">
+          <TabsTrigger value="cooler" className="w-1/5">
             Wine Cooler
           </TabsTrigger>
-          <TabsTrigger value="search" className="w-1/2">
+          <TabsTrigger value="isometric" className="w-1/5">
+            3D View
+          </TabsTrigger>
+          <TabsTrigger value="menu" className="w-1/5">
+            Wine Menu
+          </TabsTrigger>
+          <TabsTrigger value="search" className="w-1/5">
             Search
           </TabsTrigger>
         </TabsList>
@@ -134,11 +136,25 @@ export default function Dashboard() {
         <TabsContent value="cooler" className="mt-0">
           {loading ? (
             <div className="glass-card p-8 rounded-xl flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <Loader2 className="h-8 w-8 animate-spin text-theme-text" />
             </div>
           ) : (
             <WineCooler data={coolerData} onWineSelect={handleWineSelect} />
           )}
+        </TabsContent>
+
+        <TabsContent value="isometric" className="mt-0">
+          {loading ? (
+            <div className="glass-card p-8 rounded-xl flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-theme-text" />
+            </div>
+          ) : (
+            <IsometricCooler data={coolerData} onWineSelect={handleWineSelect} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="menu" className="mt-0">
+          <WineMenu token={token} onWineSelect={handleWineSelect} />
         </TabsContent>
 
         <TabsContent value="search" className="mt-0">
