@@ -40,14 +40,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If we get a 403 error, the token is invalid or expired
     if (error?.status === 403) {
       logout()
-      router.push("/")
     }
   }
 
   const logout = () => {
     if (isClient) {
+      // Remove the token from localStorage
       localStorage.removeItem("authToken")
+
+      // Clear the token from state
       setToken(null)
+
+      // Redirect to login page
       router.push("/")
     }
   }

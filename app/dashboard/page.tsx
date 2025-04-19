@@ -8,6 +8,7 @@ import SearchComponent from "@/components/search-component"
 import WineDetailPopup from "@/components/wine-detail-popup"
 import IsometricCooler from "@/components/isometric-cooler"
 import WineMenu from "@/components/wine-menu"
+import LogoutButton from "@/components/logout-button"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { config } from "@/lib/config"
@@ -114,7 +115,10 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen theme-gradient p-4">
       <div className="glass-card rounded-xl p-4 mb-4">
-        <h1 className="text-2xl font-bold text-theme-text">Wine Manager</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-theme-text">Wine Manager</h1>
+          <LogoutButton />
+        </div>
       </div>
 
       <Tabs defaultValue="cooler" className="w-full">
