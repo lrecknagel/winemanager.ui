@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 
@@ -9,12 +8,14 @@ type AuthContextType = {
   token: string | null
   setToken: (token: string | null) => void
   logout: () => void
+  handleApiError: (error: any) => void
 }
 
 const AuthContext = createContext<AuthContextType>({
   token: null,
   setToken: () => {},
   logout: () => {},
+  handleApiError: () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,12 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  useEffect(() => {
-    // Only run this effect on the client and when we have pathname and router
-    if (isClient && pathname !== "/" && pathname !== "/login" && !token) {
+  // Handle API errors, specifically 403 errors
+  const handleApiError = (error: any) => {
+    // If we get a 403 error, the token is invalid or expired
+    if (error?.status === 403) {
+      logout()
       router.push("/")
     }
-  }, [token, pathname, router, isClient])
+  }
 
   const logout = () => {
     if (isClient) {
@@ -49,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ token, setToken, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ token, setToken, logout, handleApiError }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

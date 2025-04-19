@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/components/auth-provider"
+import { config } from "@/lib/config"
 
 export default function LoginForm() {
   const [username, setUsername] = useState("")
@@ -30,8 +30,7 @@ export default function LoginForm() {
     setIsLoading(true)
 
     try {
-      // In a real app, replace <BACKEND> with your actual backend URL
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${config.backendUrl}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

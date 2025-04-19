@@ -5,13 +5,30 @@ import { Input } from "@/components/ui/input"
 import { Search, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { debounce } from "@/lib/utils"
+import { config } from "@/lib/config"
+import { useAuth } from "@/components/auth-provider"
 
 type SearchResult = {
-  id: number
-  name: string
-  winery: string
-  vintage: string
-  vintage_id: number
+  id: string
+  score: number
+  document: {
+    wine: {
+      vintage_id: number
+      name: string
+      name_seo: string
+      year: number
+      winery: string
+      grapes: string
+      foods: string
+    }
+    cooler_position?: {
+      layer_id: number
+      layer_name: string
+      column: number
+      row: number
+      level: number
+    }
+  }
 }
 
 type SearchComponentProps = {
@@ -25,6 +42,7 @@ export default function SearchComponent({ token, onWineSelect }: SearchComponent
   const [loading, setLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const { toast } = useToast()
+  const { handleApiError } = useAuth()
 
   useEffect(() => {
     setIsClient(true)
@@ -39,13 +57,17 @@ export default function SearchComponent({ token, onWineSelect }: SearchComponent
 
       setLoading(true)
       try {
-        const response = await fetch(`http://localhost:3000/search?term=${encodeURIComponent(term)}`, {
+        const response = await fetch(`${config.backendUrl}/search?term=${encodeURIComponent(term)}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
 
         if (!response.ok) {
+          if (response.status === 403) {
+            handleApiError({ status: 403 })
+            return
+          }
           throw new Error("Search failed")
         }
 
@@ -62,7 +84,7 @@ export default function SearchComponent({ token, onWineSelect }: SearchComponent
         setLoading(false)
       }
     },
-    [token, toast, isClient],
+    [token, toast, isClient, handleApiError],
   )
 
   // Debounce search to avoid too many requests
@@ -114,11 +136,20 @@ export default function SearchComponent({ token, onWineSelect }: SearchComponent
             <div
               key={result.id}
               className="glass-card-inner p-3 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
-              onClick={() => onWineSelect(result.wine.vintage_id)}
+              onClick={() => onWineSelect(result.document.wine.vintage_id)}
             >
-              <h3 className="text-white font-medium">{result.name}</h3>
-              <p className="text-white/70 text-sm">{result.winery}</p>
-              <p className="text-white/60 text-xs">{result.vintage}</p>
+              <h3 className="text-white font-medium">{result.document.wine.name}</h3>
+              <p className="text-white/70 text-sm">{result.document.wine.winery}</p>
+              <p className="text-white/60 text-xs">{result.document.wine.year}</p>
+
+              {result.document.cooler_position && (
+                <div className="mt-2 text-xs text-white/50">
+                  <p>
+                    Location: {result.document.cooler_position.layer_name}, Row {result.document.cooler_position.row},
+                    Level {result.document.cooler_position.level}, Column {result.document.cooler_position.column}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>

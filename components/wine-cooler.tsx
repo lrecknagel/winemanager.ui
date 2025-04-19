@@ -97,43 +97,58 @@ export default function WineCooler({ data, onWineSelect }: WineCoolerProps) {
                   {expandedLayer === layer.id && (
                     <div className="p-3">
                       <div className="grid grid-cols-1 gap-4">
-                        {Array.from({ length: layer.levels }).map((_, levelIndex) => (
-                          <div key={levelIndex} className="space-y-2">
-                            <h4 className="text-sm font-medium text-white/80">Level {levelIndex + 1}</h4>
-                            <div
-                              className="grid"
-                              style={{ gridTemplateColumns: `repeat(${layer.columns}, minmax(0, 1fr))` }}
-                            >
-                              {Array.from({ length: layer.rows * layer.columns }).map((_, cellIndex) => {
-                                const row = Math.floor(cellIndex / layer.columns) + 1
-                                const column = (cellIndex % layer.columns) + 1
-                                const bottle = layer.matrix.find(
-                                  (item) => item.row === row && item.column === column && item.level === levelIndex + 1,
-                                )
+                        {/* Render levels in reverse order (highest level first) */}
+                        {Array.from({ length: layer.levels })
+                          .map((_, index) => layer.levels - index) // Reverse the levels
+                          .map((levelNum) => (
+                            <div key={levelNum} className="space-y-2">
+                              <h4 className="text-sm font-medium text-white/80">Level {levelNum}</h4>
+                              <div
+                                className="grid"
+                                style={{ gridTemplateColumns: `repeat(${layer.columns}, minmax(0, 1fr))` }}
+                              >
+                                {/* For each row, render the cells */}
+                                {Array.from({ length: layer.rows }).map((_, rowIndex) => {
+                                  // Reverse the rows (row 1 is front)
+                                  const rowNum = layer.rows - rowIndex
 
-                                return (
-                                  <div
-                                    key={cellIndex}
-                                    className={cn(
-                                      "aspect-square border border-white/20 rounded-md m-1 p-1 flex items-center justify-center text-center text-xs",
-                                      bottle ? "bg-white/20 cursor-pointer" : "bg-white/5",
-                                    )}
-                                    onClick={() => bottle && onWineSelect(bottle.vintage_id)}
-                                    title={bottle?.content || "Empty"}
-                                  >
-                                    {bottle ? (
-                                      <span className="line-clamp-3 text-white">
-                                        {bottle.content.split(" ").slice(0, 2).join(" ")}...
-                                      </span>
-                                    ) : (
-                                      <span className="text-white/40">Empty</span>
-                                    )}
-                                  </div>
-                                )
-                              })}
+                                  return (
+                                    <div
+                                      key={rowNum}
+                                      className="flex w-full"
+                                      style={{ gridColumn: `span ${layer.columns}` }}
+                                    >
+                                      {Array.from({ length: layer.columns }).map((_, colIndex) => {
+                                        const column = colIndex + 1
+                                        const bottle = layer.matrix.find(
+                                          (item) =>
+                                            item.row === rowNum && item.column === column && item.level === levelNum,
+                                        )
+
+                                        return (
+                                          <div
+                                            key={`${rowNum}-${column}-${levelNum}`}
+                                            className={cn(
+                                              "aspect-square border border-white/20 rounded-md m-1 p-1 flex items-center justify-center text-center text-xs flex-1",
+                                              bottle ? "bg-white/20 cursor-pointer" : "bg-white/5",
+                                            )}
+                                            onClick={() => bottle && onWineSelect(bottle.vintage_id)}
+                                            title={bottle?.content || "Empty"}
+                                          >
+                                            {bottle ? (
+                                              <span className="line-clamp-3 text-white">{bottle.content}</span>
+                                            ) : (
+                                              <span className="text-white/40">Empty</span>
+                                            )}
+                                          </div>
+                                        )
+                                      })}
+                                    </div>
+                                  )
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
                     </div>
                   )}
