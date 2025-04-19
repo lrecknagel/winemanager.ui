@@ -140,3 +140,41 @@ The following result is the bottle in the lower left corner of a layer.
 
 * The tiles should show "content" as label.
 * I want the main color palette for the Glassmorphism style to be definable as .env or similar as well.
+
+
+-------
+
+some more improvements:
+
+* add a new main component which shows the winecooler in a 2.5D stylic layout, like the game Monument Valley
+* add another new main component which shows a wine menu like printed on paper.
+  * you can use: /search?term=* which returns all search results.
+  * please group the results by red, white or rose
+    * is a optional property in the serach results now. If not present create a category misc/unknown grape
+    [
+      {
+        "id": "92567659-229",
+        "score": 10.36766970983419,
+        "document": {
+          "wine": {
+            "vintage_id": 2230838,
+            "name": "Château Pavie Saint-Émilion Grand Cru (Premier Grand Cru Classé) 1986",
+            "name_seo": "pavie-saint-emilion-grand-cru-premier-grand-cru-classe-1986",
+            "year": 1986,
+            "winery": "Château Pavie",
+            "grapes": "Cabernet Sauvignon, Cabernet Franc, Merlot",
+            "type": "red",
+            "foods": "Beef, Lamb, Poultry, Game (deer, venison)"
+          },
+          "cooler_position": {
+            "layer_id": 3,
+            "layer_name": "A-03",
+            "column": 6,
+            "row": 2,
+            "level": 1
+          }
+        }
+      }
+    ]
+* make the colors more controllable than two props.
+  * I like to apply a color scheme for the app
