@@ -49,35 +49,24 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
         setWines(data)
 
         // Group wines by type
-        const redWines: SearchResult[] = []
-        const whiteWines: SearchResult[] = []
-        const roseWines: SearchResult[] = []
-        const otherWines: SearchResult[] = []
-
-        data.forEach((wine: SearchResult) => {
-          const type = wine.document.wine.type?.toLowerCase() || ""
-
-          if (type === "red") {
-            redWines.push(wine)
-          } else if (type === "white") {
-            whiteWines.push(wine)
-          } else if (type === "rose" || type === "rosé") {
-            roseWines.push(wine)
-          } else {
-            otherWines.push(wine)
-          }
-        })
-
-        const wineCategories: WineCategory[] = [
-          { type: "red", displayName: "Red Wines", wines: redWines },
-          { type: "white", displayName: "White Wines", wines: whiteWines },
-          { type: "rose", displayName: "Rosé Wines", wines: roseWines },
-        ]
-
-        // Only add the "Other" category if there are wines in it
-        if (otherWines.length > 0) {
-          wineCategories.push({ type: "other", displayName: "Other Wines", wines: otherWines })
+        const wineGroupNameMapping: { [key: string]: string } = {
+          schaumwein: 'Schaumweine',
+          weißwein: 'Weißwein',
+          rotwein: 'Rotwein',
+          roséwein: 'Roséwein',
+          unbekannt: 'Andere Weine',
         }
+
+        const wineGroups = Object.groupBy(
+          data,
+          (_: SearchResult) => _.document.wine.type?.toLowerCase() || ""
+        )
+
+        const wineCategories: WineCategory[] = Object.entries(wineGroups).map(([type, wines]) => ({
+          type,
+          displayName: wineGroupNameMapping[type],
+          wines: wines ?? []
+        }))
 
         setCategories(wineCategories)
       } catch (error) {

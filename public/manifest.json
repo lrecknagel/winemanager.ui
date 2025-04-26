@@ -1,11 +1,11 @@
 {
   "name": "Wine Manager",
-  "short_name": "WineManager",
+  "short_name": "Wine Manager",
   "description": "Manage your wine collection with style",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#1a1a1a",
+  "background_color": "#1e1b4b",
+  "theme_color": "#4c1d95",
   "icons": [
     {
       "src": "/icon-192x192.png",
