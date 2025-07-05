@@ -38,8 +38,9 @@ export default function RootLayout({
         <meta name="grammarly-extension" content="disabled" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/futura-font@1.0.0/styles.min.css" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className + " futura-font"} style={{ fontFamily: 'Futura, Inter, Arial, sans-serif' }}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>

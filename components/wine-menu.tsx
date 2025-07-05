@@ -1,11 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { CloudCog, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { config } from "@/lib/config"
 import { useAuth } from "@/components/auth-provider"
-import type { SearchResult } from "@/lib/types"
+import type { SearchResult, Wine } from "@/lib/types"
+import Image from "next/image"
+
+type WineWithThumb = {
+  thumb?: string
+}
 
 type WineMenuProps = {
   token: string | null
@@ -15,7 +20,7 @@ type WineMenuProps = {
 type WineCategory = {
   type: string
   displayName: string
-  wines: SearchResult[]
+  wines: (Omit<SearchResult, 'document'> & { document: { wine: Wine & { thumb?: string }, cooler_position?: any } })[]
 }
 
 export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
@@ -47,6 +52,8 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
 
         const data = await response.json()
         setWines(data)
+
+        console.log(data)
 
         // Group wines by type
         const wineGroupNameMapping: { [key: string]: string } = {
@@ -119,24 +126,37 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
               {category.wines.map((wine) => (
                 <div
                   key={wine.id}
-                  className="wine-menu-item cursor-pointer hover:bg-white/10 transition-colors p-3 rounded-lg"
+                  className="wine-menu-item cursor-pointer hover:bg-white/10 transition-colors p-3 rounded-lg flex items-center gap-4"
                   onClick={() => onWineSelect(wine.document.wine.vintage_id)}
                 >
-                  <div className="flex justify-between items-baseline">
-                    <h4 className="text-theme-text font-medium">{wine.document.wine.name}</h4>
-                    <span className="text-theme-text/60 text-sm">{wine.document.wine.year}</span>
-                  </div>
-                  <p className="text-theme-text/70 text-sm">{wine.document.wine.winery}</p>
-                  <p className="text-theme-text/60 text-xs mt-1">{wine.document.wine.grapes}</p>
-
-                  {wine.document.cooler_position && (
-                    <div className="mt-2 text-xs text-theme-text/50 italic">
-                      <p>
-                        {wine.document.cooler_position.layer_name}, Row {wine.document.cooler_position.row}, Level{" "}
-                        {wine.document.cooler_position.level}, Column {wine.document.cooler_position.column}
-                      </p>
+                  {wine.document.wine.thumb && (
+                    <div className="wine-thumb-vignette">
+                      <Image
+                        src={wine.document.wine.thumb}
+                        alt={wine.document.wine.name}
+                        width={64}
+                        height={85}
+                        className="wine-thumb-img"
+                        loading="lazy"
+                        style={{ objectFit: 'cover', borderRadius: '0.75rem' }}
+                      />
                     </div>
                   )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline">
+                      <h4 className="text-theme-text font-medium truncate">{wine.document.wine.name}</h4>
+                      <span className="text-theme-text/60 text-sm">{wine.document.wine.year}</span>
+                    </div>
+                    <p className="text-theme-text/70 text-sm truncate">{wine.document.wine.winery}</p>
+                    <p className="text-theme-text/60 text-xs mt-1 truncate">{wine.document.wine.grapes}</p>
+                    {wine.document.cooler_position && (
+                      <div className="mt-2 text-xs text-theme-text/50 italic">
+                        <p>
+                          {wine.document.cooler_position.layer_name}, Row {wine.document.cooler_position.row}, Level {wine.document.cooler_position.level}, Column {wine.document.cooler_position.column}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

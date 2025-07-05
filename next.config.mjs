@@ -8,7 +8,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    domains: [
+      'images.vivino.com',
+    ],
   },
 }
 

@@ -3,6 +3,7 @@
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { WineDetail } from "@/lib/types"
+import Image from "next/image"
 
 type WineDetailPopupProps = {
   wine: WineDetail
@@ -21,9 +22,24 @@ export default function WineDetailPopup({ wine, onClose }: WineDetailPopupProps)
         </div>
 
         <div className="p-4 space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-theme-text">{wine.name}</h3>
-            <p className="text-theme-text/70">{wine.winery}</p>
+          <div className="flex items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-theme-text">{wine.name}</h3>
+              <p className="text-theme-text/70">{wine.winery}</p>
+            </div>
+            {(wine as any).thumb && (
+              <div className="wine-thumb-vignette wine-detail-thumb">
+                <Image
+                  src={(wine as any).thumb}
+                  alt={wine.name}
+                  width={120}
+                  height={160}
+                  className="wine-thumb-img"
+                  loading="lazy"
+                  style={{ objectFit: 'cover', borderRadius: '1.25rem' }}
+                />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

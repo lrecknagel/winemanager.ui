@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -35,6 +35,12 @@ type WineCoolerProps = {
 export default function WineCooler({ data, onWineSelect }: WineCoolerProps) {
   const [expandedChamber, setExpandedChamber] = useState<string | null>(null)
   const [expandedLayer, setExpandedLayer] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (data && data.length > 0 && !expandedChamber) {
+      setExpandedChamber(data[0].name)
+    }
+  }, [data, expandedChamber])
 
   if (!data || data.length === 0) {
     return (

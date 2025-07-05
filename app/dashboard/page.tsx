@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import WineCooler from "@/components/wine-cooler"
 import SearchComponent from "@/components/search-component"
 import WineDetailPopup from "@/components/wine-detail-popup"
-import IsometricCooler from "@/components/isometric-cooler"
 import WineMenu from "@/components/wine-menu"
 import LogoutButton from "@/components/logout-button"
 import { useToast } from "@/hooks/use-toast"
@@ -126,9 +125,6 @@ export default function Dashboard() {
           <TabsTrigger value="cooler" className="w-1/5">
             Wine Cooler
           </TabsTrigger>
-          <TabsTrigger value="isometric" className="w-1/5">
-            3D View
-          </TabsTrigger>
           <TabsTrigger value="menu" className="w-1/5">
             Wine Menu
           </TabsTrigger>
@@ -144,16 +140,6 @@ export default function Dashboard() {
             </div>
           ) : (
             <WineCooler data={coolerData} onWineSelect={handleWineSelect} />
-          )}
-        </TabsContent>
-
-        <TabsContent value="isometric" className="mt-0">
-          {loading ? (
-            <div className="glass-card p-8 rounded-xl flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-theme-text" />
-            </div>
-          ) : (
-            <IsometricCooler data={coolerData} onWineSelect={handleWineSelect} />
           )}
         </TabsContent>
 
