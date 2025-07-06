@@ -121,14 +121,14 @@ export default function Dashboard() {
       </div>
 
       <Tabs defaultValue="cooler" className="w-full">
-        <TabsList className="glass-card w-full mb-4">
-          <TabsTrigger value="cooler" className="w-1/5">
+        <TabsList className="glass-card w-full mb-4 sm:mb-4 mb-2 px-1 sm:px-0">
+          <TabsTrigger value="cooler" className="w-1/5 px-2 sm:px-4 py-2 text-xs sm:text-base">
             Wine Cooler
           </TabsTrigger>
-          <TabsTrigger value="menu" className="w-1/5">
+          <TabsTrigger value="menu" className="w-1/5 px-2 sm:px-4 py-2 text-xs sm:text-base">
             Wine Menu
           </TabsTrigger>
-          <TabsTrigger value="search" className="w-1/5">
+          <TabsTrigger value="search" className="w-1/5 px-2 sm:px-4 py-2 text-xs sm:text-base">
             Search
           </TabsTrigger>
         </TabsList>
