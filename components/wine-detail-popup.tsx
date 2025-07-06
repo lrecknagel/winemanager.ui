@@ -47,6 +47,21 @@ export default function WineDetailPopup({ wine, onClose }: WineDetailPopupProps)
             <p className="text-theme-text/70 text-sm">{wine.description}</p>
           </div>
 
+          {/* Drink window row */}
+          <div className="flex items-center gap-2 mt-2">
+            <h4 className="text-sm font-medium text-theme-text/80 min-w-[110px]">Drink window:</h4>
+            <span className="text-theme-text/70 text-sm">
+              {(() => {
+                // Accept drink_window as a property on wine (may be undefined)
+                const status = (wine as any).drink_window?.status
+                if (status === 4 || status === 5) return "Perfect"
+                if (status === 6) return "Overdue"
+                if (status === 0 || status === 1 || status === 2) return "?"
+                return "?"
+              })()}
+            </span>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h4 className="text-sm font-medium text-theme-text/80">Grapes</h4>
