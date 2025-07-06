@@ -1,7 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CloudCog, Loader2 } from "lucide-react"
+import { CloudCog, Loader2, Filter } from "lucide-react"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Badge } from "@/components/ui/badge"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { config } from "@/lib/config"
 import { useAuth } from "@/components/auth-provider"
@@ -26,9 +31,60 @@ type WineCategory = {
 export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
   const [wines, setWines] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(true)
-  const [categories, setCategories] = useState<WineCategory[]>([])
+  const [filterOpen, setFilterOpen] = useState(false)
+  // Filter states
+  const [selectedDrinkWindow, setSelectedDrinkWindow] = useState<string>("")
+  const [selectedFoods, setSelectedFoods] = useState<string[]>([])
+  const [selectedGrapes, setSelectedGrapes] = useState<string[]>([])
+  const [selectedLayer, setSelectedLayer] = useState<string>("__all__")
   const { toast } = useToast()
   const { handleApiError } = useAuth()
+
+  // Extract unique filter options from wines
+  const foodsSet = new Set<string>()
+  const grapesSet = new Set<string>()
+  const layerSet = new Set<string>()
+  wines.forEach((w) => {
+    w.document.wine.foods?.split(",").map(f => f.trim()).forEach(f => f && foodsSet.add(f))
+    w.document.wine.grapes?.split(",").map(g => g.trim()).forEach(g => g && grapesSet.add(g))
+    if (w.document.cooler_position?.layer_name) layerSet.add(w.document.cooler_position.layer_name)
+  })
+  const foods = Array.from(foodsSet).sort()
+  const grapes = Array.from(grapesSet).sort()
+  const layers = Array.from(layerSet).sort()
+
+  // Helper: get drink window status
+  function getDrinkWindowStatus(w: SearchResult): string {
+    // Try to get drink_window from document, fallback to wine.drink_window if present
+    const status = (w.document as any).drink_window?.status ?? (w.document.wine as any).drink_window?.status
+    if (status === 4 || status === 5) return "perfect"
+    if (status === 6) return "overdue"
+    return "unknown"
+  }
+
+  // Filtering logic
+  const filteredWines = wines.filter((w) => {
+    // Drink window
+    if (selectedDrinkWindow) {
+      const status = getDrinkWindowStatus(w)
+      if (selectedDrinkWindow !== status) return false
+    }
+    // Foods
+    if (selectedFoods.length > 0) {
+      const wineFoods = w.document.wine.foods?.split(",").map(f => f.trim()) || []
+      if (!selectedFoods.every(f => wineFoods.includes(f))) return false
+    }
+    // Grapes
+    if (selectedGrapes.length > 0) {
+      const wineGrapes = w.document.wine.grapes?.split(",").map(g => g.trim()) || []
+      if (!selectedGrapes.every(g => wineGrapes.includes(g))) return false
+    }
+    // Layer
+    if (selectedLayer && selectedLayer !== "__all__") {
+      if (w.document.cooler_position?.layer_name !== selectedLayer) return false
+    }
+    return true
+  })
 
   useEffect(() => {
     async function fetchAllWines() {
@@ -75,7 +131,7 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
           wines: wines ?? []
         }))
 
-        setCategories(wineCategories)
+        // setCategories(wineCategories) // This line is removed
       } catch (error) {
         toast({
           title: "Error",
@@ -89,6 +145,24 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
 
     fetchAllWines()
   }, [token, toast, handleApiError])
+
+  // Group filtered wines by type for rendering
+  const wineGroupNameMapping: { [key: string]: string } = {
+    schaumwein: 'Schaumweine',
+    weißwein: 'Weißwein',
+    rotwein: 'Rotwein',
+    roséwein: 'Roséwein',
+    unbekannt: 'Andere Weine',
+  }
+  const wineGroups = Object.groupBy(
+    filteredWines,
+    (_: SearchResult) => _.document.wine.type?.toLowerCase() || ""
+  )
+  const categories: WineCategory[] = Object.entries(wineGroups).map(([type, wines]) => ({
+    type,
+    displayName: wineGroupNameMapping[type],
+    wines: wines ?? []
+  }))
 
   if (loading) {
     return (
@@ -108,9 +182,88 @@ export default function WineMenu({ token, onWineSelect }: WineMenuProps) {
 
   return (
     <div className="wine-menu">
-      <div className="wine-menu-header glass-card p-6 rounded-xl mb-4 text-center">
+      <div className="wine-menu-header glass-card p-6 rounded-xl mb-4 text-center relative">
         <h2 className="text-2xl font-serif text-theme-text mb-1">Wine Collection</h2>
         <p className="text-theme-text/70 italic">A curated selection of fine wines</p>
+        <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="absolute right-4 top-4" aria-label="Filter wines">
+              <Filter className="h-5 w-5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-80">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-semibold text-base">Filter Wines</span>
+              <Button variant="ghost" size="sm" onClick={() => {
+                setSelectedDrinkWindow("")
+                setSelectedFoods([])
+                setSelectedGrapes([])
+                setSelectedLayer("__all__")
+              }}>Clear</Button>
+            </div>
+            <div className="mb-4">
+              <div className="font-medium mb-1">Drink Window</div>
+              <RadioGroup value={selectedDrinkWindow} onValueChange={setSelectedDrinkWindow} className="flex gap-2">
+                <div className="flex items-center gap-1">
+                  <RadioGroupItem value="unknown" id="dw-unknown" />
+                  <label htmlFor="dw-unknown" className="text-sm">Unknown</label>
+                </div>
+                <div className="flex items-center gap-1">
+                  <RadioGroupItem value="perfect" id="dw-perfect" />
+                  <label htmlFor="dw-perfect" className="text-sm">Perfect</label>
+                </div>
+                <div className="flex items-center gap-1">
+                  <RadioGroupItem value="overdue" id="dw-overdue" />
+                  <label htmlFor="dw-overdue" className="text-sm">Overdue</label>
+                </div>
+              </RadioGroup>
+            </div>
+            <div className="mb-4">
+              <div className="font-medium mb-1">Foods</div>
+              <div className="flex flex-wrap gap-2">
+                {foods.map(food => (
+                  <Badge
+                    key={food}
+                    variant={selectedFoods.includes(food) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedFoods(selectedFoods.includes(food) ? selectedFoods.filter(f => f !== food) : [...selectedFoods, food])}
+                  >
+                    {food}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div className="mb-4">
+              <div className="font-medium mb-1">Grapes</div>
+              <div className="flex flex-wrap gap-2">
+                {grapes.map(grape => (
+                  <Badge
+                    key={grape}
+                    variant={selectedGrapes.includes(grape) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedGrapes(selectedGrapes.includes(grape) ? selectedGrapes.filter(g => g !== grape) : [...selectedGrapes, grape])}
+                  >
+                    {grape}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div className="mb-2">
+              <div className="font-medium mb-1">Cooler Layer</div>
+              <Select value={selectedLayer} onValueChange={setSelectedLayer}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select layer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All</SelectItem>
+                  {layers.map(layer => (
+                    <SelectItem key={layer} value={layer}>{layer}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {categories.map((category) => (
